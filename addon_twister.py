@@ -22,16 +22,23 @@ from math import *
 def add_object(self, context):
     scale_x = self.scale.x
     scale_y = self.scale.y
-    num = 4
+    num = 6
+    rot = (pi)/num
     verts = []
+    faces = []
     for v in range(num):
+        
 	    (x,y,z) = (cos((2*pi*v)/num), sin((2*pi*v)/num), 0)
 	    verts.append( (x,y,z) )
     for v in range(num): 
-	    (x,y,z) = (cos((2*pi*v)/num), sin((2*pi*v)/num), 1)
+	    (x,y,z) = (cos(((2*pi*v)/num) + rot), sin(((2*pi*v)/num)+rot), 1)
 	    verts.append( (x,y,z) )
-    
-    faces = [ [i for i in range(num)], [i for i in range(num, 2*num)] ]
+    for f in range(num-1):
+        (a,b,c,d) = (f,f+1,f+num+1,f+num)
+        faces.append( (a,b,c,d) )
+    faces.append( (num-1,0,num,2*num-1) ) 
+    faces.append( [i for i in range(num-1, -1, -1)] )
+    faces.append( [i for i in range(num, 2*num)] )
     edges = []
     mesh = bpy.data.meshes.new(name="Twister")
     mesh.from_pydata(verts, edges, faces)
