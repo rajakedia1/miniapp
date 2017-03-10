@@ -13,17 +13,19 @@ bl_info = {
 
 import bpy
 from bpy.types import Operator
-from bpy.props import FloatVectorProperty
 from bpy_extras.object_utils import AddObjectHelper, object_data_add
-from mathutils import *
-from math import *
+from math import sin, cos, pi
+from bpy.props import (
+        IntProperty,
+        )
+from bpy.app.translations import pgettext_data as data_
+
+from bpy_extras import object_utils
 
 
-def add_object(self, context):
-    scale_x = self.scale.x
-    scale_y = self.scale.y
-    num = 6
-    rot = (pi)/num
+def add_object(self, context, num, rot):
+    #rot = (pi)/num
+    rot = rot *pi / 180
     verts = []
     faces = []
     for v in range(num):
@@ -53,16 +55,39 @@ class OBJECT_OT_add_object(Operator, AddObjectHelper):
     bl_label = "Add Mesh Twister"
     bl_options = {'REGISTER', 'UNDO'}
 
-    scale = FloatVectorProperty(
-            name="scale",
-            default=(1.0, 1.0, 1.0),
-            subtype='TRANSLATION',
-            description="scaling",
+    segments = IntProperty(
+            name="Segments",
+            description="Number of segments for the Twister",
+            min=3, max=20,
+            default=6,
             )
-
+    rota = IntProperty(
+            name="Rotation",
+            description="Angle of Rotation for the Twister",
+            min=0, max=180,
+            default= 0
+            )
+	
+    def draw(self, context):
+        layout = self.layout
+        col = layout.column(align=True)
+        col.prop(self, 'view_align')
+        
+        col = layout.column(align=True)
+        col.label(text="Segments")
+        col.prop(self, "segments", text="")
+        
+        col = layout.column(align=True)
+        col.label(text="Rotation")
+        col.prop(self, "rota", text="")
+		
+    def invoke(self, context, event):
+        object_utils.object_add_grid_scale_apply_operator(self, context)
+        return self.execute(context)	
+		
     def execute(self, context):
 
-        add_object(self, context)
+        add_object(self, context, self.segments, self.rota)
 
         return {'FINISHED'}
 
